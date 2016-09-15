@@ -1,7 +1,7 @@
 # Rust语言中文文档
 
-翻译：Ji Chengde
-邮箱：jichengde@qq.com
+翻译:Ji Chengde
+邮箱:jichengde@qq.com
 
 该文档是对rust官方文档(1.11版本)的翻译，乃本人学习之用。诸君可随便阅览和批评
 校正，但未经本人许可严禁在网上散布转载！
