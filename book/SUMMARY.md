@@ -1,6 +1,6 @@
 # Summary
 
-* [起步](getting-started.md)
+* [起步](起步.md)
 * [从一个小例子开始](guessing-game.md)
 * [基本语法和语义](syntax-and-semantics.md)
     * [变量绑定](variable-bindings.md)
