@@ -71,3 +71,4 @@ Rust语言中文文档
     * [切片模式](book/切片模式.md)
     * [Associated Constants](book/associated-constants.md)
     * [自定义内存管理器](book/自定义内存管理器.md)
+* [Rust语言参考](reference.md)
