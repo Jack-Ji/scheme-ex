@@ -20,7 +20,7 @@ fn main() {
 
 Any implementor of `Foo` will have to define `ID`. Without the definition:
 
-```rust,ignore
+```rust
 #![feature(associated_consts)]
 
 trait Foo {

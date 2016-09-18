@@ -28,7 +28,7 @@ and add `extern crate libc;` to your crate root.
 The following is a minimal example of calling a foreign function which will
 compile if snappy is installed:
 
-```rust,no_run
+```rust
 # #![feature(libc)]
 extern crate libc;
 use libc::size_t;
@@ -62,7 +62,7 @@ keeping the binding correct at runtime.
 
 The `extern` block can be extended to cover the entire snappy API:
 
-```rust,no_run
+```rust
 # #![feature(libc)]
 extern crate libc;
 use libc::{c_int, size_t};
@@ -246,7 +246,7 @@ Foreign libraries often hand off ownership of resources to the calling code.
 When this occurs, we must use Rust's destructors to provide safety and guarantee
 the release of these resources (especially in the case of panic).
 
-For more about destructors, see the [Drop trait](../std/ops/trait.Drop.html).
+For more about destructors, see the [Drop trait](https://doc.rust-lang.org/std/ops/trait.Drop.html).
 
 # Callbacks from C code to Rust functions
 
@@ -263,7 +263,7 @@ A basic example is:
 
 Rust code:
 
-```rust,no_run
+```rust
 extern fn callback(a: i32) {
     println!("I'm called from C with value {0}", a);
 }
@@ -316,7 +316,7 @@ referenced Rust object.
 
 Rust code:
 
-```rust,no_run
+```rust
 #[repr(C)]
 struct RustObject {
     a: i32,
@@ -460,7 +460,7 @@ Foreign APIs often export a global variable which could do something like track
 global state. In order to access these variables, you declare them in `extern`
 blocks with the `static` keyword:
 
-```rust,no_run
+```rust
 # #![feature(libc)]
 extern crate libc;
 
@@ -479,7 +479,7 @@ Alternatively, you may need to alter global state provided by a foreign
 interface. To do this, statics can be declared with `mut` so we can mutate
 them.
 
-```rust,no_run
+```rust
 # #![feature(libc)]
 extern crate libc;
 

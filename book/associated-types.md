@@ -19,7 +19,7 @@ While this sort of works, it ends up being awkward. For example, any function
 that wants to take a `Graph` as a parameter now _also_ needs to be generic over
 the `N`ode and `E`dge types too:
 
-```rust,ignore
+```rust
 fn distance<N, E, G: Graph<N, E>>(graph: &G, start: &N, end: &N) -> u32 { ... }
 ```
 
@@ -42,7 +42,7 @@ trait Graph {
 
 Now, our clients can be abstract over a given `Graph`:
 
-```rust,ignore
+```rust
 fn distance<G: Graph>(graph: &G, start: &G::N, end: &G::N) -> u32 { ... }
 ```
 
@@ -133,7 +133,7 @@ declarations.
 There’s one more bit of syntax we should talk about: trait objects. If you
 try to create a trait object from a trait with an associated type, like this:
 
-```rust,ignore
+```rust
 # trait Graph {
 #     type N;
 #     type E;

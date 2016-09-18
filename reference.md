@@ -1017,7 +1017,7 @@ A _generic function_ allows one or more _parameterized types_ to appear in its
 signature. Each type parameter must be explicitly declared in an
 angle-bracket-enclosed and comma-separated list, following the function name.
 
-```rust,ignore
+```rust
 // foo is generic over A and B
 
 fn foo<A, B>(x: A, y: B) {
@@ -1028,7 +1028,7 @@ used as a type name. [Trait](#traits) bounds can be specified for type parameter
 to allow methods with that trait to be called on values of that type. This is
 specified using the `where` syntax:
 
-```rust,ignore
+```rust
 fn foo<T>(x: T) where T: Debug {
 ```
 
@@ -2155,7 +2155,7 @@ The following configurations must be defined by the implementation:
 
 You can also set another attribute based on a `cfg` variable with `cfg_attr`:
 
-```rust,ignore
+```rust
 #[cfg_attr(a, b)]
 ```
 

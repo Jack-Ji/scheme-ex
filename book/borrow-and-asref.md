@@ -3,8 +3,8 @@
 The [`Borrow`][borrow] and [`AsRef`][asref] traits are very similar, but
 different. Here’s a quick refresher on what these two traits mean.
 
-[borrow]: ../std/borrow/trait.Borrow.html
-[asref]: ../std/convert/trait.AsRef.html
+[borrow]: https://doc.rust-lang.org/std/borrow/trait.Borrow.html
+[asref]: https://doc.rust-lang.org/std/convert/trait.AsRef.html
 
 # Borrow
 
@@ -13,19 +13,19 @@ use either an owned or borrowed type as synonymous for some purpose.
 
 For example, [`HashMap`][hashmap] has a [`get` method][get] which uses `Borrow`:
 
-```rust,ignore
+```rust
 fn get<Q: ?Sized>(&self, k: &Q) -> Option<&V>
     where K: Borrow<Q>,
           Q: Hash + Eq
 ```
 
-[hashmap]: ../std/collections/struct.HashMap.html
-[get]: ../std/collections/struct.HashMap.html#method.get
+[hashmap]: https://doc.rust-lang.org/std/collections/struct.HashMap.html
+[get]: https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.get
 
 This signature is pretty complicated. The `K` parameter is what we’re interested
 in here. It refers to a parameter of the `HashMap` itself:
 
-```rust,ignore
+```rust
 struct HashMap<K, V, S = RandomState> {
 ```
 

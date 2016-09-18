@@ -24,7 +24,7 @@ fn main() {
 }
 ```
 
-[deref]: ../std/ops/trait.Deref.html
+[deref]: https://doc.rust-lang.org/std/ops/trait.Deref.html
 
 This is useful for writing custom pointer types. However, there’s a language
 feature related to `Deref`: ‘deref coercions’. Here’s the rule: If you have a
@@ -107,7 +107,7 @@ f.foo();
 Even though `f` is a `&&Foo` and `foo` takes `&self`, this works. That’s
 because these things are the same:
 
-```rust,ignore
+```rust
 f.foo();
 (&f).foo();
 (&&f).foo();

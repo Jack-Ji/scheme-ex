@@ -36,7 +36,7 @@ or overriding the default shim for the C `main` function with your own.
 The function marked `#[start]` is passed the command line parameters
 in the same format as C:
 
-```rust,ignore
+```rust
 #![feature(lang_items)]
 #![feature(start)]
 #![no_std]
@@ -78,7 +78,7 @@ with `#![no_main]` and then create the appropriate symbol with the
 correct ABI and the correct name, which requires overriding the
 compiler's name mangling too:
 
-```rust,ignore
+```rust
 #![feature(lang_items)]
 #![feature(start)]
 #![no_std]

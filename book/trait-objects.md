@@ -195,7 +195,7 @@ pub struct TraitObject {
 # }
 ```
 
-[stdraw]: ../std/raw/struct.TraitObject.html
+[stdraw]: https://doc.rust-lang.org/std/raw/struct.TraitObject.html
 
 That is, a trait object like `&Foo` consists of a ‘data’ pointer and a ‘vtable’
 pointer.
@@ -210,7 +210,7 @@ piece of machine code for each method in the implementation. A method call like
 `trait_object.method()` will retrieve the correct pointer out of the vtable and
 then do a dynamic call of it. For example:
 
-```rust,ignore
+```rust
 struct FooVtable {
     destructor: fn(*mut ()),
     size: usize,
@@ -272,7 +272,7 @@ Suppose we’ve got some values that implement `Foo`. The explicit form of
 construction and use of `Foo` trait objects might look a bit like (ignoring the
 type mismatches: they’re all pointers anyway):
 
-```rust,ignore
+```rust
 let a: String = "foo".to_string();
 let x: u8 = 1;
 
@@ -304,7 +304,7 @@ let y = TraitObject {
 Not every trait can be used to make a trait object. For example, vectors implement
 `Clone`, but if we try to make a trait object:
 
-```rust,ignore
+```rust
 let v = vec![1, 2, 3];
 let o = &v as &Clone;
 ```

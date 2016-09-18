@@ -83,7 +83,7 @@ accept. Consider this function, which does not compile:
 
 [bounds]: glossary.html#bounds
 
-```rust,ignore
+```rust
 fn print_area<T>(shape: T) {
     println!("This shape has an area of {}", shape.area());
 }
@@ -175,7 +175,7 @@ This shape has an area of 1
 As you can see, `print_area` is now generic, but also ensures that we have
 passed in the correct types. If we pass in an incorrect type:
 
-```rust,ignore
+```rust
 print_area(5);
 ```
 
@@ -223,7 +223,7 @@ fn main() {
 `is_square()` needs to check that the sides are equal, so the sides must be of
 a type that implements the [`core::cmp::PartialEq`][PartialEq] trait:
 
-```rust,ignore
+```rust
 impl<T: PartialEq> Rectangle<T> { ... }
 ```
 
@@ -272,9 +272,9 @@ example: the standard library provides a [`Write`][write] trait which adds
 extra functionality to `File`s, for doing file I/O. By default, a `File`
 won’t have its methods:
 
-[write]: ../std/io/trait.Write.html
+[write]: https://doc.rust-lang.org/std/io/trait.Write.html
 
-```rust,ignore
+```rust
 let mut f = std::fs::File::create("foo.txt").expect("Couldn’t create foo.txt");
 let buf = b"whatever"; // byte string literal. buf: &[u8; 8]
 let result = f.write(buf);
@@ -291,7 +291,7 @@ let result = f.write(buf);
 
 We need to `use` the `Write` trait first:
 
-```rust,ignore
+```rust
 use std::io::Write;
 
 let mut f = std::fs::File::create("foo.txt").expect("Couldn’t create foo.txt");

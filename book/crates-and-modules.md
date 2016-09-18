@@ -124,7 +124,7 @@ ways.
 
 Instead of declaring a module like this:
 
-```rust,ignore
+```rust
 mod english {
     // contents of our module go here
 }
@@ -132,7 +132,7 @@ mod english {
 
 We can instead declare our module like this:
 
-```rust,ignore
+```rust
 mod english;
 ```
 
@@ -171,7 +171,7 @@ $ tree .
 
 `src/lib.rs` is our crate root, and looks like this:
 
-```rust,ignore
+```rust
 mod english;
 mod japanese;
 ```
@@ -182,7 +182,7 @@ on our preference. In this case, because our modules have sub-modules, we’ve
 chosen the second. Both `src/english/mod.rs` and `src/japanese/mod.rs` look
 like this:
 
-```rust,ignore
+```rust
 mod greetings;
 mod farewells;
 ```
@@ -250,7 +250,7 @@ our library.
 
 Make a `src/main.rs` and put this in it (it won’t quite compile yet):
 
-```rust,ignore
+```rust
 extern crate phrases;
 
 fn main() {
@@ -305,7 +305,7 @@ public, and so private is the default. To make things public, you use the `pub`
 keyword. Let’s focus on the `english` module first, so let’s reduce our `src/main.rs`
 to only this:
 
-```rust,ignore
+```rust
 extern crate phrases;
 
 fn main() {
@@ -316,21 +316,21 @@ fn main() {
 
 In our `src/lib.rs`, let’s add `pub` to the `english` module declaration:
 
-```rust,ignore
+```rust
 pub mod english;
 mod japanese;
 ```
 
 And in our `src/english/mod.rs`, let’s make both `pub`:
 
-```rust,ignore
+```rust
 pub mod greetings;
 pub mod farewells;
 ```
 
 In our `src/english/greetings.rs`, let’s add `pub` to our `fn` declaration:
 
-```rust,ignore
+```rust
 pub fn hello() -> String {
     "Hello!".to_string()
 }
@@ -338,7 +338,7 @@ pub fn hello() -> String {
 
 And also in `src/english/farewells.rs`:
 
-```rust,ignore
+```rust
 pub fn goodbye() -> String {
     "Goodbye.".to_string()
 }
@@ -377,7 +377,7 @@ refer to them with shorter names. Let’s talk about `use`.
 Rust has a `use` keyword, which allows us to import names into our local scope.
 Let’s change our `src/main.rs` to look like this:
 
-```rust,ignore
+```rust
 extern crate phrases;
 
 use phrases::english::greetings;
@@ -394,7 +394,7 @@ the functions by a much shorter name. By convention, when importing functions, i
 considered best practice to import the module, rather than the function directly. In
 other words, you _can_ do this:
 
-```rust,ignore
+```rust
 extern crate phrases;
 
 use phrases::english::greetings::hello;
@@ -412,7 +412,7 @@ becomes a problem. If we have conflicting names, Rust will give a compilation
 error. For example, if we made the `japanese` functions public, and tried to do
 this:
 
-```rust,ignore
+```rust
 extern crate phrases;
 
 use phrases::english::greetings::hello;
@@ -438,14 +438,14 @@ Could not compile `phrases`.
 If we’re importing multiple names from the same module, we don’t have to type it out
 twice. Instead of this:
 
-```rust,ignore
+```rust
 use phrases::english::greetings;
 use phrases::english::farewells;
 ```
 
 We can use this shortcut:
 
-```rust,ignore
+```rust
 use phrases::english::{greetings, farewells};
 ```
 
@@ -457,7 +457,7 @@ interface that may not directly map to your internal code organization.
 
 Let’s look at an example. Modify your `src/main.rs` to read like this:
 
-```rust,ignore
+```rust
 extern crate phrases;
 
 use phrases::english::{greetings,farewells};
@@ -474,14 +474,14 @@ fn main() {
 
 Then, modify your `src/lib.rs` to make the `japanese` mod public:
 
-```rust,ignore
+```rust
 pub mod english;
 pub mod japanese;
 ```
 
 Next, make the two functions public, first in `src/japanese/greetings.rs`:
 
-```rust,ignore
+```rust
 pub fn hello() -> String {
     "こんにちは".to_string()
 }
@@ -489,7 +489,7 @@ pub fn hello() -> String {
 
 And then in `src/japanese/farewells.rs`:
 
-```rust,ignore
+```rust
 pub fn goodbye() -> String {
     "さようなら".to_string()
 }
@@ -497,7 +497,7 @@ pub fn goodbye() -> String {
 
 Finally, modify your `src/japanese/mod.rs` to read like this:
 
-```rust,ignore
+```rust
 pub use self::greetings::hello;
 pub use self::farewells::goodbye;
 
@@ -546,7 +546,7 @@ Goodbye in Japanese: さようなら
 Rust offers several advanced options that can add compactness and
 convenience to your `extern crate` and `use` statements. Here is an example:
 
-```rust,ignore
+```rust
 extern crate phrases as sayings;
 
 use sayings::japanese::greetings as ja_greetings;
@@ -582,7 +582,7 @@ globbing to compress three `use` statements into one (this sort of syntax
 may be familiar if you've written Linux shell scripts before). The
 uncompressed form of this statement would be:
 
-```rust,ignore
+```rust
 use sayings::english;
 use sayings::english::greetings as en_greetings;
 use sayings::english::farewells as en_farewells;

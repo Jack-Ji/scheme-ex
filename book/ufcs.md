@@ -65,7 +65,7 @@ Bar::f(&b);
 
 Let’s break it down.
 
-```rust,ignore
+```rust
 Foo::
 Bar::
 ```
@@ -74,7 +74,7 @@ These halves of the invocation are the types of the two traits: `Foo` and
 `Bar`. This is what ends up actually doing the disambiguation between the two:
 Rust calls the one from the trait name you use.
 
-```rust,ignore
+```rust
 f(&b)
 ```
 
@@ -88,14 +88,14 @@ not, and so we need to pass an explicit `&b`.
 
 The form of UFCS we just talked about:
 
-```rust,ignore
+```rust
 Trait::method(args);
 ```
 
 Is a short-hand. There’s an expanded form of this that’s needed in some
 situations:
 
-```rust,ignore
+```rust
 <Type as Trait>::method(args);
 ```
 

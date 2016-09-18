@@ -21,19 +21,19 @@ So why bother? Well, because `[T]` can only be used behind a pointer, if we
 didn’t have language support for unsized types, it would be impossible to write
 this:
 
-```rust,ignore
+```rust
 impl Foo for str {
 ```
 
 or
 
-```rust,ignore
+```rust
 impl<T> Foo for [T] {
 ```
 
 Instead, you would have to write:
 
-```rust,ignore
+```rust
 impl Foo for &str {
 ```
 
