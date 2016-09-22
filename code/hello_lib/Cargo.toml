@@ -1,7 +1,9 @@
 [package]
-name = "guessing_game"
+name = "hello_lib"
 version = "0.1.0"
 authors = ["jichengde <jichengde@qq.com>"]
 
+[lib]
+crate-type = ["staticlib"]
+
 [dependencies]
-rand = "0.3.0"
