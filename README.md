@@ -23,7 +23,7 @@ Rust语言中文文档
     * [变量可变性](book/变量可变性.md)
     * [结构体](book/结构体.md)
     * [枚举](book/枚举.md)
-    * [模式匹配](book/模式匹配.md)
+    * [match](book/match.md)
     * [模式](book/模式.md)
     * [方法](book/方法.md)
     * [字符串](book/字符串.md)
