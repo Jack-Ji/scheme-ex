@@ -1,29 +1,9 @@
 % Traits
 
-A trait is a language feature that tells the Rust compiler about
-functionality a type must provide.
+trait类似于Java中的interface，它用于告诉Rust编译器一个类型须实现哪些功能。
 
-Recall the `impl` keyword, used to call a function with [method
-syntax][methodsyntax]:
-
-```rust
-struct Circle {
-    x: f64,
-    y: f64,
-    radius: f64,
-}
-
-impl Circle {
-    fn area(&self) -> f64 {
-        std::f64::consts::PI * (self.radius * self.radius)
-    }
-}
-```
-
-[methodsyntax]: method-syntax.html
-
-Traits are similar, except that we first define a trait with a method
-signature, then implement the trait for a type. In this example, we implement the trait `HasArea` for `Circle`:
+使用trait时首先需要声明一个trait，其内部是方法声明。然后我们就可以为某个类型添加
+trait支持了。下面的例子中，我们为`Circle`实现了`HasArea` trait。
 
 ```rust
 struct Circle {
@@ -43,13 +23,11 @@ impl HasArea for Circle {
 }
 ```
 
-As you can see, the `trait` block looks very similar to the `impl` block,
-but we don’t define a body, only a type signature. When we `impl` a trait,
-we use `impl Trait for Item`, rather than only `impl Item`.
+如你所见，`trait`的定义结构与`impl`很类似，区别是没有函数体的定义，只有函数原型
+声明。此外在实现某个trait时，我们使用`impl Trait for Item`这样的语法。
 
-`Self` may be used in a type annotation to refer to an instance of the type
-implementing this trait passed as a parameter. `Self`, `&Self` or `&mut Self`
-may be used depending on the level of ownership required.
+`Self`可用于在trait的函数声明中表示符合本trait的类型，可根据需要使用`Self`、
+`&Self`和`&mut Self`中的任意一种。
 
 ```rust
 struct Circle {
@@ -75,13 +53,10 @@ impl HasArea for Circle {
 }
 ```
 
-## Trait bounds on generic functions
+## 泛型参数的trait限制
 
-Traits are useful because they allow a type to make certain promises about its
-behavior. Generic functions can exploit this to constrain, or [bound][bounds], the types they
-accept. Consider this function, which does not compile:
-
-[bounds]: glossary.html#bounds
+trait的用处主要在于允许对类型的行为做出假设。泛型函数可以利用这一点对其泛型参数
+进行限制。首先考虑下面的例子：
 
 ```rust
 fn print_area<T>(shape: T) {
@@ -89,15 +64,14 @@ fn print_area<T>(shape: T) {
 }
 ```
 
-Rust complains:
+以上代码编译会报错：
 
 ```text
 error: no method named `area` found for type `T` in the current scope
 ```
 
-Because `T` can be any type, we can’t be sure that it implements the `area`
-method. But we can add a trait bound to our generic `T`, ensuring
-that it does:
+上面的代码出错的原因是泛型参数`T`可以是任意类型，因此我们无法确定其是否一定实现
+了`area`方法。我们可以通过为泛型参数`T`添加类型限定达到该目的：
 
 ```rust
 # trait HasArea {
@@ -108,11 +82,10 @@ fn print_area<T: HasArea>(shape: T) {
 }
 ```
 
-The syntax `<T: HasArea>` means “any type that implements the `HasArea` trait.”
-Because traits define function type signatures, we can be sure that any type
-which implements `HasArea` will have an `.area()` method.
+`<T: HasArea>`表示`T`是任何实现了`HasArea` trait的类型。因为`HasArea`定义了方法原型，
+`area()`方法必定是`T`类型支持的。
 
-Here’s an extended example of how this works:
+以下是扩展示例：
 
 ```rust
 trait HasArea {
@@ -165,27 +138,25 @@ fn main() {
 }
 ```
 
-This program outputs:
+以上代码输出：
 
 ```text
 This shape has an area of 3.141593
 This shape has an area of 1
 ```
 
-As you can see, `print_area` is now generic, but also ensures that we have
-passed in the correct types. If we pass in an incorrect type:
+正如你所见，`print_area`对函数参数做了类型限制，因此当我们传入一个错误参数时，
+Rust会报错如下：
 
 ```rust
 print_area(5);
 ```
 
-We get a compile-time error:
-
 ```text
 error: the trait bound `_ : HasArea` is not satisfied [E0277]
 ```
 
-## Trait bounds on generic structs
+## 泛型结构体的trait限制
 
 Your generic structs can also benefit from trait bounds. All you need to
 do is append the bound when you declare type parameters. Here is a new
@@ -238,7 +209,7 @@ compared for equality. Could we do the same for our `HasArea` structs, `Square`
 and `Circle`? Yes, but they need multiplication, and to work with that we need
 to know more about [operator traits][operators-and-overloading].
 
-[operators-and-overloading]: operators-and-overloading.html
+[operators-and-overloading]: 操作符重载.md
 
 # Rules for implementing traits
 
@@ -320,8 +291,8 @@ One last thing about traits: generic functions with a trait bound use
 ‘monomorphization’ (mono: one, morph: form), so they are statically dispatched.
 What’s that mean? Check out the chapter on [trait objects][to] for more details.
 
-[cm]: crates-and-modules.html
-[to]: trait-objects.html
+[cm]: crates-and-modules.md
+[to]: trait-objects.md
 
 # Multiple trait bounds
 
@@ -542,7 +513,7 @@ fn main() {
 }
 ```
 
-[attributes]: attributes.html
+[attributes]: attributes.md
 
 However, deriving is limited to a certain set of traits:
 
