@@ -1,10 +1,7 @@
 % if let
 
-`if let` allows you to combine `if` and `let` together to reduce the overhead
-of certain kinds of pattern matches.
-
-For example, let’s say we have some sort of `Option<T>`. We want to call a function
-on it if it’s `Some<T>`, but do nothing if it’s `None`. That looks like this:
+前面提到过，`if let`是match的简化版，用它我们可以方便的对变量进行模式匹配，如果
+匹配成功则与其关联的代码块会被执行。首先看下面使用match的例子：
 
 ```rust
 # let option = Some(5);
@@ -15,7 +12,7 @@ match option {
 }
 ```
 
-We don’t have to use `match` here, for example, we could use `if`:
+我们可以通过方法调用判断`option`的类型：
 
 ```rust
 # let option = Some(5);
@@ -26,8 +23,7 @@ if option.is_some() {
 }
 ```
 
-Neither of these options is particularly appealing. We can use `if let` to
-do the same thing in a nicer way:
+显然这过于依赖类型本身，更好的方法是使用`if let`，代码如下：
 
 ```rust
 # let option = Some(5);
@@ -37,12 +33,8 @@ if let Some(x) = option {
 }
 ```
 
-If a [pattern][patterns] matches successfully, it binds any appropriate parts of
-the value to the identifiers in the pattern, then evaluates the expression. If
-the pattern doesn’t match, nothing happens.
-
-If you want to do something else when the pattern does not match, you can
-use `else`:
+和match一样，`if let`同样会创建新的变量绑定。此外当匹配不成功时也可通过`else`进
+一步处理：
 
 ```rust
 # let option = Some(5);
@@ -57,8 +49,8 @@ if let Some(x) = option {
 
 ## `while let`
 
-In a similar fashion, `while let` can be used when you want to conditionally
-loop  as long as a value matches a certain pattern. It turns code like this:
+`while let`创建了一个循环，该循环的条件是值与模式相匹配。首先我们看使用`for`
+和`match`的版本：
 
 ```rust
 let mut v = vec![1, 3, 5, 7, 11];
@@ -70,7 +62,7 @@ loop {
 }
 ```
 
-Into code like this:
+然后我们再看更为简洁的`while let`版本：
 
 ```rust
 let mut v = vec![1, 3, 5, 7, 11];
@@ -79,4 +71,4 @@ while let Some(x) = v.pop() {
 }
 ```
 
-[patterns]: patterns.html
+[patterns]: 模式.md

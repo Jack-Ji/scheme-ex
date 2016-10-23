@@ -158,9 +158,7 @@ error: the trait bound `_ : HasArea` is not satisfied [E0277]
 
 ## 泛型结构体的trait限制
 
-Your generic structs can also benefit from trait bounds. All you need to
-do is append the bound when you declare type parameters. Here is a new
-type `Rectangle<T>` and its operation `is_square()`:
+泛型结构体同样可使用trait对类型进行限定。下面是示例：
 
 ```rust
 struct Rectangle<T> {
@@ -191,31 +189,24 @@ fn main() {
 }
 ```
 
-`is_square()` needs to check that the sides are equal, so the sides must be of
-a type that implements the [`core::cmp::PartialEq`][PartialEq] trait:
+由于方法`is_square()`需要对两个`T`类型变量进行比较，类型`T`必须实现了
+`core::cmp::PartialEq` trait。
 
 ```rust
 impl<T: PartialEq> Rectangle<T> { ... }
 ```
 
-Now, a rectangle can be defined in terms of any type that can be compared for
-equality.
+因此，上面定义的`Rectangle`可由任何能够进行比较的类型构成。
 
-[PartialEq]: ../core/cmp/trait.PartialEq.html
-
-Here we defined a new struct `Rectangle` that accepts numbers of any
-precision—really, objects of pretty much any type—as long as they can be
-compared for equality. Could we do the same for our `HasArea` structs, `Square`
-and `Circle`? Yes, but they need multiplication, and to work with that we need
-to know more about [operator traits][operators-and-overloading].
+上面的`Circle`也可以用同样的方式实现成泛型结构体，这回其成员需要支持乘法操作，
+关于操作符的支持参看后续的[操作符traits][operators-and-overloading]。
 
 [operators-and-overloading]: 操作符重载.md
 
-# Rules for implementing traits
+# 实现traits的准则
 
-So far, we’ve only added trait implementations to structs, but you can
-implement a trait for any type. So technically, we _could_ implement `HasArea`
-for `i32`:
+上面我们主要为struct添加了trait支持，实际上你可以为任意类型添加trait支持，比如
+`i32`类型：
 
 ```rust
 trait HasArea {
@@ -233,15 +224,11 @@ impl HasArea for i32 {
 5.area();
 ```
 
-It is considered poor style to implement methods on such primitive types, even
-though it is possible.
+尽管可以这样做，我们并不推荐为基础类型添加新方法，因为这可能会使代码相当晦涩难懂。
 
-This may seem like the Wild West, but there are two restrictions around
-implementing traits that prevent this from getting out of hand. The first is
-that if the trait isn’t defined in your scope, it doesn’t apply. Here’s an
-example: the standard library provides a [`Write`][write] trait which adds
-extra functionality to `File`s, for doing file I/O. By default, a `File`
-won’t have its methods:
+Rust对trait的使用施加了两条限制，以避免代码失控。首先，你准备使用的trait的定义必
+须在当前范围可见。以下示例代码中的`File`类型支持[`Write`][write] trait，然而在没
+有将`Write`的定义引入当前范围的情况下编译不会成功：
 
 [write]: https://doc.rust-lang.org/std/io/trait.Write.html
 
@@ -252,7 +239,7 @@ let result = f.write(buf);
 # result.unwrap(); // ignore the error
 ```
 
-Here’s the error:
+编译错误信息如下：
 
 ```text
 error: type `std::fs::File` does not implement any method in scope named `write`
@@ -260,7 +247,7 @@ let result = f.write(buf);
                ^~~~~~~~~~
 ```
 
-We need to `use` the `Write` trait first:
+因此我们需要通过`use`加载`Write` trait的定义：
 
 ```rust
 use std::io::Write;
@@ -271,32 +258,27 @@ let result = f.write(buf);
 # result.unwrap(); // ignore the error
 ```
 
-This will compile without error.
+这下就没问题了。
 
-This means that even if someone does something bad like add methods to `i32`,
-it won’t affect you, unless you `use` that trait.
+这意味着即便某个人故意为基本类型`i32`添加了一些方法，只要你没有`use`那些trait，
+你就不会受到影响。
 
-There’s one more restriction on implementing traits: either the trait
-or the type you’re implementing it for must be defined by you. Or more
-precisely, one of them must be defined in the same crate as the `impl`
-you're writing. For more on Rust's module and package system, see the
-chapter on [crates and modules][cm].
+Rust对trait的使用施加的最后一条限制是类型和trait二者至少有一个要属于当前crate，
+否则不允许为类型添加trait实现。关于crate可参见后续的[crates and modules章节][cm]。
 
-So, we could implement the `HasArea` type for `i32`, because we defined
-`HasArea` in our code. But if we tried to implement `ToString`, a trait
-provided by Rust, for `i32`, we could not, because neither the trait nor
-the type are defined in our crate.
+因此，我们可以为`i32`添加`HasArea`支持，因为`HasArea`是我们自己定义的。然而如果
+我们想为`i32`添加`ToString`的支持，Rust会禁止这样做，因为无论`i32`还是`ToString`
+都不是我们自己定义的。
 
-One last thing about traits: generic functions with a trait bound use
-‘monomorphization’ (mono: one, morph: form), so they are statically dispatched.
-What’s that mean? Check out the chapter on [trait objects][to] for more details.
+最后一件需要了解的关于trait的事实是：添加了trait限制的泛型函数是静态派发的，这一
+点在后面的[trait objects][to]中会详细解释。
 
 [cm]: crates-and-modules.md
 [to]: trait-objects.md
 
-# Multiple trait bounds
+# 多trait限制
 
-You’ve seen that you can bound a generic type parameter with a trait:
+之前介绍过如何为泛型参数添加trait限制：
 
 ```rust
 fn foo<T: Clone>(x: T) {
@@ -304,7 +286,7 @@ fn foo<T: Clone>(x: T) {
 }
 ```
 
-If you need more than one bound, you can use `+`:
+如果你希望添加多个trait限制，可以使用`+`：
 
 ```rust
 use std::fmt::Debug;
@@ -315,13 +297,11 @@ fn foo<T: Clone + Debug>(x: T) {
 }
 ```
 
-`T` now needs to be both `Clone` as well as `Debug`.
+上面代码中的类型`T`需要同时支持`Clone`和`Debug`。
 
-# Where clause
+# `where`字句
 
-Writing functions with only a few generic types and a small number of trait
-bounds isn’t too bad, but as the number increases, the syntax gets increasingly
-awkward:
+随着泛型参数的增加，为参数添加trait限定会导致整个函数原型的可读性大幅下降：
 
 ```rust
 use std::fmt::Debug;
@@ -333,10 +313,8 @@ fn foo<T: Clone, K: Clone + Debug>(x: T, y: K) {
 }
 ```
 
-The name of the function is on the far left, and the parameter list is on the
-far right. The bounds are getting in the way.
-
-Rust has a solution, and it’s called a ‘`where` clause’:
+这是因为泛型参数列表过长，导致函数名和函数参数相隔得太远了。为解决这个问题，Rust
+引入了`where`字句：
 
 ```rust
 use std::fmt::Debug;
@@ -359,10 +337,8 @@ fn main() {
 }
 ```
 
-`foo()` uses the syntax we showed earlier, and `bar()` uses a `where` clause.
-All you need to do is leave off the bounds when defining your type parameters,
-and then add `where` after the parameter list. For longer lists, whitespace can
-be added:
+如上所示，我们可以将泛型参数的类型限定放在函数参数列表后面的`where`字句中，必要
+时也可以添加换行，这样一来函数原型的可读性就大大改善了：
 
 ```rust
 use std::fmt::Debug;
@@ -379,7 +355,7 @@ fn bar<T, K>(x: T, y: K)
 
 This flexibility can add clarity in complex situations.
 
-`where` is also more powerful than the simpler syntax. For example:
+`where`字句不止可以用于限制泛型参数，还可以用于限制数据类型，例如：
 
 ```rust
 trait ConvertTo<Output> {
@@ -403,14 +379,11 @@ fn inverse<T>(x: i32) -> T
 }
 ```
 
-This shows off the additional feature of `where` clauses: they allow bounds
-on the left-hand side not only of type parameters `T`, but also of types (`i32` in this case). In this example, `i32` must implement
-`ConvertTo<T>`. Rather than defining what `i32` is (since that's obvious), the
-`where` clause here constrains `T`.
+上例中，函数`inverse()`通过`where`字句限制了i32必须实现`ConvertTo<T>`。
 
-# Default methods
+# 默认方法
 
-A default method can be added to a trait definition if it is already known how a typical implementor will define a method. For example, `is_invalid()` is defined as the opposite of `is_valid()`:
+在定义trait时可为方法提供默认实现，例如：
 
 ```rust
 trait Foo {
@@ -420,7 +393,8 @@ trait Foo {
 }
 ```
 
-Implementors of the `Foo` trait need to implement `is_valid()` but not `is_invalid()` due to the added default behavior. This default behavior can still be overridden as in:
+实现该trait时一般只需实现`is_valid()`就足够了，当然你仍然可以自己实现`is_invalid()`。
+下面的例子只实现了`is_invalid()`：
 
 ```rust
 # trait Foo {
@@ -437,7 +411,7 @@ impl Foo for UseDefault {
     }
 }
 
-struct OverrideDefault;
+下面的例子则实现了所有方法：
 
 impl Foo for OverrideDefault {
     fn is_valid(&self) -> bool {
@@ -458,9 +432,9 @@ let over = OverrideDefault;
 assert!(over.is_invalid()); // prints "Called OverrideDefault.is_invalid!"
 ```
 
-# Inheritance
+# 继承
 
-Sometimes, implementing a trait requires implementing another trait:
+trait之间是可以继承：
 
 ```rust
 trait Foo {
@@ -472,7 +446,7 @@ trait FooBar : Foo {
 }
 ```
 
-Implementors of `FooBar` must also implement `Foo`, like this:
+`FooBar`继承了`Foo`，因此`FooBar`的实现者必须实现`Foo`中的方法：
 
 ```rust
 # trait Foo {
@@ -492,17 +466,16 @@ impl FooBar for Baz {
 }
 ```
 
-If we forget to implement `Foo`, Rust will tell us:
+如果我们忘记了实现`Foo`中的接口，Rust会告诉我们：
 
 ```text
 error: the trait bound `main::Baz : main::Foo` is not satisfied [E0277]
 ```
 
-# Deriving
+# trait自动实现
 
-Implementing traits like `Debug` and `Default` repeatedly can become
-quite tedious. For that reason, Rust provides an [attribute][attributes] that
-allows you to let Rust automatically implement traits for you:
+有些trait不光经常用到，其实现通常也有其固定的规律，Rust为这些trait提供了自动实现
+的手段：[属性][attributes]：
 
 ```rust
 #[derive(Debug)]
@@ -515,14 +488,14 @@ fn main() {
 
 [attributes]: attributes.md
 
-However, deriving is limited to a certain set of traits:
+可被自动实现的trait如下：
 
-- [`Clone`](../core/clone/trait.Clone.html)
-- [`Copy`](../core/marker/trait.Copy.html)
-- [`Debug`](../core/fmt/trait.Debug.html)
-- [`Default`](../core/default/trait.Default.html)
-- [`Eq`](../core/cmp/trait.Eq.html)
-- [`Hash`](../core/hash/trait.Hash.html)
-- [`Ord`](../core/cmp/trait.Ord.html)
-- [`PartialEq`](../core/cmp/trait.PartialEq.html)
-- [`PartialOrd`](../core/cmp/trait.PartialOrd.html)
+- `Clone`
+- `Copy`
+- `Debug`
+- `Default`
+- `Eq`
+- `Hash`
+- `Ord`
+- `PartialEq`
+- `PartialOrd`

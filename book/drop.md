@@ -1,8 +1,7 @@
 % Drop
 
-Now that we’ve discussed traits, let’s talk about a particular trait provided
-by the Rust standard library, [`Drop`][drop]. The `Drop` trait provides a way
-to run some code when a value goes out of scope. For example:
+我们已经学习了trait，本章我们讨论Rust标准库提供的一个特殊的trait：[`Drop`][drop]。
+`Drop`的功能是添加一段代码供某个值失效时运行：
 
 [drop]: https://doc.rust-lang.org/std/ops/trait.Drop.html
 
@@ -23,13 +22,12 @@ fn main() {
 } // x goes out of scope here
 ```
 
-When `x` goes out of scope at the end of `main()`, the code for `Drop` will
-run. `Drop` has one method, which is also called `drop()`. It takes a mutable
-reference to `self`.
+上面`drop()`方法会在`x`超出有效范围时调用。`drop()`是`Drop`包含的唯一方法，并且
+其接受的参数是`&mut self`。
 
-That’s it! The mechanics of `Drop` are very simple, but there are some
-subtleties. For example, values are dropped in the opposite order they are
-declared. Here’s another example:
+`Drop`的核心内容就这么多，是不是很简单？
+
+另外需要提醒你的是多个值一起失效时，`drop()`被调用的顺序与各个值声明的顺序相反：
 
 ```rust
 struct Firework {
@@ -48,20 +46,15 @@ fn main() {
 }
 ```
 
-This will output:
+以上代码输出：
 
 ```text
 BOOM times 100!!!
 BOOM times 1!!!
 ```
 
-The `tnt` goes off before the `firecracker` does, because it was declared
-afterwards. Last in, first out.
-
-So what is `Drop` good for? Generally, `Drop` is used to clean up any resources
-associated with a `struct`. For example, the [`Arc<T>` type][arc] is a
-reference-counted type. When `Drop` is called, it will decrement the reference
-count, and if the total number of references is zero, will clean up the
-underlying value.
+那么`Drop`有什么用处呢？一般的，`Drop`可用于安全的释放与值相关的某些资源。例如，
+[`Arc<T>` 类型][arc]就使用了`Drop`在其实例失效时递减引用计数，如果减小到0则释放
+底层资源。
 
 [arc]: https://doc.rust-lang.org/std/sync/struct.Arc.html
