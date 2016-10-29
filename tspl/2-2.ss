@@ -179,3 +179,70 @@
 ;;  => ((car '(- * /)) 17 5)
 ;;  => (- 17 5)
 ;;  => 12
+
+#|================================================================================================|#
+
+;; Exercise 2.4.1
+;;
+;; Rewrite the following expressions, using let to remove common subexpressions and to improve the
+;; structure of the code. Do not perform any algebraic simplifications.
+;; a. (+ (- (* 3 a) b) (+ (* 3 a) b))
+;; b. (cons (car (list a b c)) (cdr (list a b c)))
+;;
+;; Answer:
+;;  (let ([3a (* 3 a)]
+;;    (+ (- 3a b) (+ 3a b))))
+;;  (let ([x (list a b c)])
+;;    (cons (car x) (cdr x)))
+
+#|================================================================================================|#
+
+;; Exercise 2.4.2
+;;
+;; Determine the value of the following expression. Explain how you derived this value.
+;; (let ([x 9])
+;;   (* x
+;;      (let ([x (/ x 3)])
+;;          (+ x x))))
+;;
+;; Answer:
+;;  (let ([x 9])
+;;    (* x
+;;       (let ([x (/ x 3)])
+;;           (+ x x))))
+;;  => (let ([x 9])
+;;       (* 9
+;;          (let ([x (/ x 3)])
+;;              (+ 3 3))))
+;;  => (let ([x 9]) (* 9 6))
+;;  => 54
+
+#|================================================================================================|#
+
+;; Exercise 2.4.2
+;;
+;; Rewrite the following expressions to give unique names to each different let-bound variable
+;; so that none of the variables is shadowed. Verify that the value of your expression is the
+;; same as that of the original expression.
+;; a. (let ([x 'a] [y 'b])
+;;      (list (let ([x 'c]) (cons x y))
+;;            (let ([y 'd]) (cons x y))))
+;; b. (let ([x '((a b) c)])
+;;        (cons (let ([x (cdr x)])
+;;                (car x))
+;;              (let ([x (car x)])
+;;                (cons (let ([x (cdr x)])
+;;                        x)
+;;                      (cdr x)))))
+;;
+;; Answer:
+;;  (let ([x 'a] [y 'b])
+;;    (list (let ([z 'c]) (cons z y))
+;;          (let ([z 'd]) (cons x z))))  => ((c . b) (a . d))
+;;  (let ([x '((a b) c)])
+;;      (cons (let ([y (cdr x)])
+;;              (car y))
+;;            (let ([y (car x)])
+;;              (cons (let ([z (cdr y)])
+;;                      z)
+;;                    (cdr y)))))   => (c (b) b)
