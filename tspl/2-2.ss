@@ -165,3 +165,17 @@
 ;;  (car (cdr (cdr x))) => illegal
 ;;  (cdr (car (cdr x))) => d
 ;;  (cdr (cdr (cdr x))) => illegal
+
+#|================================================================================================|#
+
+;; Exercise 2.3.1
+;;
+;; Write down the steps necessary to evaluate the expression below.
+;; ((car (cdr (list + - * /))) 17 5)
+;;
+;; Answer:
+;;  ((car (cdr (list + - * /))) 17 5)
+;;  => ((car (cdr '(+ - * /))) 17 5)
+;;  => ((car '(- * /)) 17 5)
+;;  => (- 17 5)
+;;  => 12
