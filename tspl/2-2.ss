@@ -246,3 +246,56 @@
 ;;              (cons (let ([z (cdr y)])
 ;;                      z)
 ;;                    (cdr y)))))   => (c (b) b)
+
+#|================================================================================================|#
+
+;; Exercise 2.5.1
+;;
+;; Determine the values of the expressions below.
+;; a. (let ([f (lambda (x) x)]) (f 'a))
+;; b. (let ([f (lambda x x)])
+;;      (f 'a))
+;; c. (let ([f (lambda (x . y) x)])
+;;      (f 'a))
+;; d. (let ([f (lambda (x . y) y)])
+;;      (f 'a))
+;;
+;; Answer:
+;;  a
+;;  (a)
+;;  a
+;;  ()
+
+#|================================================================================================|#
+
+;; Exercise 2.5.2
+;;
+;; How might the primitive procedure list be defined?
+
+;; Answer:
+(define list (lambda x x))
+
+#|================================================================================================|#
+
+;; Exercise 2.5.3
+;;
+;; List the variables that occur free in each of the lambda expressions below.
+;; Do not omit variables that name primitive procedures such as + or cons.
+;; a. (lambda (f x) (f x))
+;; b. (lambda (x) (+ x x))
+;; c. (lambda (x y) (f x y))
+;; d. (lambda (x) (cons x (f x y)))
+;; e. (lambda (x)
+;;      (let ([z (cons x y)])
+;;          (x y z)))
+;; f. (lambda (x)
+;;      (let ([y (cons x y)])
+;;          (x y z)))
+;;
+;; Answer:
+;;  a. none
+;;  b. +
+;;  c. f
+;;  d. cons f y
+;;  e. let cons y
+;;  f. let cons z
