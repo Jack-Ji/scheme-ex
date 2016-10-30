@@ -299,3 +299,83 @@
 ;;  d. cons f y
 ;;  e. let cons y
 ;;  f. let cons z
+
+#|================================================================================================|#
+
+;; Exercise 2.6.1
+;;
+;; What would happen if you were to type (double-any double-any double-any),
+;; given the definition of double-any as following:
+;;  (define double-any (lambda (f x)
+;;      (f x x)))
+;;
+;; Answer:
+;;  It's an infinite recursion, the call will never return and one core of cpu will be totally occupied.
+;;  Because of its tail-call nature, the stack wouldn't overflow either.
+
+#|================================================================================================|#
+
+;; Exercise 2.6.2
+;;
+;; A more elegant (though possibly less efficient) way to define cadr and cddr than given in this
+;; section is to define a procedure that composes two procedures to create a third. Write the procedure
+;; compose, such that (compose p1 p2) is the composition of p1 and p2(assuming both take one argument).
+;; That is, (compose p1 p2) should return a new procedure of onear gument that applies p1 to the result
+;; of applying p2 to the argument. Use compose to define cadr and cddr.
+
+;; Answer: 
+(define compose
+  (lambda (x y)
+    (lambda (z)
+      (x (y z)))))
+
+(define cadr
+  (compose car cdr))
+
+(define cddr
+  (compose cdr cdr))
+
+#|================================================================================================|#
+
+;; Exercise 2.6.3
+;;
+;; Scheme also provides caar, cdar, caaar, caadr, and so on, with any combination of up to four
+;; a's (representing car) and d's (representing cdr) between the c and the r.
+;; Define each of these with the compose procedure of the preceding exercise.
+
+;; Answer:
+(define compose
+  (lambda (x y)
+    (lambda (z)
+      (x (y z)))))
+
+(define caar (compose car car))
+(define cadr (compose car cdr))
+(define cdar (compose cdr car))
+(define cddr (compose cdr cdr))
+
+(define caaar (compose car caar))
+(define caadr (compose car cadr))
+(define cadar (compose car cdar))
+(define caddr (compose car cddr))
+(define cdaar (compose cdr caar))
+(define cdadr (compose cdr cadr))
+(define cddar (compose cdr cdar))
+(define cdddr (compose cdr cddr))
+
+(define caaaar (compose car caaar))
+(define caaadr (compose car caadr))
+(define caadar (compose car cadar))
+(define caaddr (compose car caddr))
+(define cadaar (compose car cdaar))
+(define cadadr (compose car cdadr))
+(define caddar (compose car cddar))
+(define cadddr (compose car cdddr))
+(define cdaaar (compose cdr caaar))
+(define cdaadr (compose cdr caadr))
+(define cdadar (compose cdr cadar))
+(define cdaddr (compose cdr caddr))
+(define cddaar (compose cdr cdaar))
+(define cddadr (compose cdr cdadr))
+(define cdddar (compose cdr cddar))
+(define cddddr (compose cdr cdddr))
