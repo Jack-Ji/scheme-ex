@@ -379,3 +379,33 @@
 (define cddadr (compose cdr cdadr))
 (define cdddar (compose cdr cddar))
 (define cddddr (compose cdr cdddr))
+
+#|================================================================================================|#
+
+;; Exercise 2.7.1
+;;
+;; Define the predicate atom?, which returns true if its argument is not a pair and false if it is.
+
+;; Answer:
+(define atom?
+  (lambda (x)
+    (not (pair? x))))
+
+#|================================================================================================|#
+
+;; Exercise 2.7.1
+;;
+;; The procedure length returns the length of its argument, which must be a list. For example,
+;; (length '(a b c)) is 3. Using length, define the procedure shorter, which returns the shorter
+;; of two list arguments. Have it return the first list if they have the same length.
+;; (shorter '(a b) '(c d e)) => (a b)
+;; (shorter '(a b) '(c d)) => (a b)
+;; (shorter '(a b) '(c)) => (c)
+
+;; Answer:
+(define shorter
+  (lambda (a b)
+    (let ([la (length a)]
+          [lb (length b)])
+      (if (> la lb) b a))))
+
