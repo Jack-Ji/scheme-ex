@@ -393,7 +393,7 @@
 
 #|================================================================================================|#
 
-;; Exercise 2.7.1
+;; Exercise 2.7.2
 ;;
 ;; The procedure length returns the length of its argument, which must be a list. For example,
 ;; (length '(a b c)) is 3. Using length, define the procedure shorter, which returns the shorter
@@ -409,3 +409,153 @@
           [lb (length b)])
       (if (> la lb) b a))))
 
+#|================================================================================================|#
+
+;; Exercise 2.8.1
+;;
+;; Describe what would happen if you switched the order of the arguments to cons in the definition
+;; of tree-copy.
+;;
+;; Answer:
+;;  The left sub-tree and right sub-tree of each tree-node will exchange places.
+;;  (define tree-copy
+;;    (lambda (tr)
+;;      (if (not (pair? tr))
+;;        tr
+;;        (cons (tree-copy (cdr tr))
+;;              (tree-copy (car tr))))))
+;;  (tree-copy '((a . b) . (c . d))) =>  ((d . c) b . a)
+
+#|================================================================================================|#
+
+;; Exercise 2.8.2
+;;
+;; Consult Section 6.3 for the description of append and define a two-argument version of it.
+;; What would happen if you switched the order of the arguments in the call to append within
+;; your definition of append?
+
+;; Answer:
+(define append1
+  (lambda (ls x)
+    (if (not (list? ls))
+        (assertion-violation 'append1 "first argument isn't a legal list!"))
+    (if (null? ls)
+        x
+        (cons (car ls)
+              (append (cdr ls) x)))))
+
+#|================================================================================================|#
+
+;; Exercise 2.8.3
+;;
+;; Define the procedure make-list, which takes a nonnegative integer n and an object and 
+;; returns a new list, n long, each element of which is the object.
+;;
+;;  (make-list 7 '()) (() () () () () () ())
+;;
+;; [Hint: The base test should be (= n 0), and the recursion step should involve (- n 1).
+;; Whereas () is the natural base case for recursion on lists, 0 is the natural base case for
+;; recursion on nonnegative integers. Similarly, subtracting 1 is the natural way to bring a 
+;; nonnegative integer closer to 0.]
+
+;; Answer:
+(define make-list
+  (lambda (n obj)
+    (if (<= n 0)
+        '()
+        (cons obj
+              (make-list (- n 1) obj)))))
+
+#|================================================================================================|#
+
+;; Exercise 2.8.4
+;;
+;; The procedures list-ref and list-tail return the nth element and nth tail of a list ls.
+;;
+;;  (list-ref '(1 2 3 4) 0) => 1
+;;  (list-tail '(1 2 3 4) 0) => (1 2 3 4)
+;;  (list-ref '(a short (nested) list) 2) => (nested)
+;;  (list-tail '(a short (nested) list) 2) => ((nested) list)
+;;
+;; Define both procedures.
+
+;; Answer:
+(define list-ref
+  (lambda (ls n)
+    (cond
+      [(or (< n 0) (>= n (length ls))) (assertion-violation 'list-ref "invalid nth argument" n)]
+      [(= n 0) (car ls)]
+      [else (list-ref (cdr ls) (1- n))])))
+
+(define list-tail
+  (lambda (ls n)
+    (cond
+      [(or (< n 0) (> n (length ls))) (assertion-violation 'list-tail "invalid nth argument" n)]
+      [(= n 0) ls]
+      [else (list-tail (cdr ls) (1- n))])))
+
+#|================================================================================================|#
+
+;; Exercise 2.8.5
+;;
+;; Exercise 2.7.2 had you use length in the definition of shorter, which returns the shorter of its
+;; two list arguments, or the first if the two have the same length. Write shorter without using length.
+;;
+;; [Hint: Define a recursive helper, shorter?, and use it in place of the length comparison.]
+
+;; Answer:
+(define shorter?
+  (lambda (a b)
+    (cond
+      [(null? a) #t]
+      [(null? b) #f]
+      [else (shorter? (cdr a) (cdr b))])))
+
+(define shorter
+  (lambda (a b)
+    (if (shorter? a b) a b)))
+
+#|================================================================================================|#
+
+;; Exercise 2.8.6
+;;
+;; All of the recursive procedures shown so far have been directly recursive.
+;; That is, each procedure directly applies itself to a new argument.
+;; It is also possible to write two procedures that use each other, resulting in indirect recursion.
+;; Define the procedures odd? and even?, each in terms of the other.
+;;
+;; (even? 17) => #f
+;; (odd? 17) => #t
+;;
+;; [Hint: What should each return when its argument is 0?]
+
+;; Answer:
+(define even?
+  (lambda (n)
+    (cond
+      [(= n 0) #f]
+      [(odd? (1- n)) #t]
+      [else #f])))
+
+(define odd?
+  (lambda (n)
+    (cond
+      [(= n 1) #f]
+      [(even? (1- n)) #t]
+      [else #f])))
+
+#|================================================================================================|#
+
+;; Exercise 2.8.7
+;;
+;; Use map to define a procedure, transpose, that takes a list of pairs and returns a pair of
+;; lists as follows.
+;;
+;; (transpose'((a . 1) (b . 2) (c . 3))) => ((a b c) 1 2 3)
+;;
+;; [Hint: ((a b c) 1 2 3) is the same as ((a b c) . (1 2 3)).]
+
+;; Answer:
+(define transpose
+  (lambda (ps)
+    (cons (map car ps) (map cdr ps))))
