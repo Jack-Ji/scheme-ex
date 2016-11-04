@@ -559,3 +559,258 @@
 (define transpose
   (lambda (ps)
     (cons (map car ps) (map cdr ps))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.1
+;;
+;; Modify make-counter to take two arguments: an initial value for the counter to use in place of 0
+;; and an amount to increment the counter by each time.
+
+;; Answer:
+(define make-counter
+  (lambda (a b)
+    (let ([init a] [step b])
+        (lambda ()
+          (let ([v init])
+            (set! init (+ init step))
+            v)))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.2
+;;
+;; Look up the description of case in Section 5.3. Replace the cond expression in make-stack with
+;; an equivalent case expression. Add mt? as a second name for the empty? message.
+
+;; Answer:
+(define make-stack
+  (lambda ()
+    (let ([ls '()])
+      (lambda (msg . args)
+        (case msg
+          [(mt? empty?) (null? ls)]
+          [(push!) (set! ls (cons (car args) ls))]
+          [(top) (car ls)]
+          [(pop!) (set! ls (cdr ls))]
+          [else "oops"])))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.3
+;;
+;; Modify the stack object to allow the two messages ref and set!. 
+;; (stack 'ref i) should return the ith element from the top of the stack.
+;; (stack 'ref 0) should be equivalent to (stack 'top).
+;; (stack 'set! i v) should change the ith element from the top of the stack to v.
+;;
+;; (define stack (make-stack))
+;; (stack 'push! 'a)
+;; (stack 'push! 'b)
+;; (stack 'push! 'c)
+;; (stack 'ref 0) => c
+;; (stack 'ref 2) => a
+;; (stack 'set! 1 'd)
+;; (stack 'ref 1) => d
+;; (stack 'top) => c
+;; (stack 'pop!)
+;; (stack 'top) => d
+;;
+;; [Hint: Use list-ref to implement ref and list-tail with set-car! to implement set!.]
+
+;; Answer:
+(define make-stack
+  (lambda ()
+    (let ([ls '()])
+      (lambda (msg . args)
+        (case msg
+          [(mt? empty?) (null? ls)]
+          [(push!) (set! ls (cons (car args) ls))]
+          [(top) (car ls)]
+          [(pop!) (set! ls (cdr ls))]
+          [(ref) (list-ref ls (car args))]
+          [(set!) (set-car! (list-tail ls (car args))
+                            (cadr args))]
+          [else "oops"])))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.4
+;;
+;; Scheme supports vectors as well as lists. Like lists, vectors are aggregate objects that contain
+;; other objects. Unlike lists, vectors have a fixed size and are laid out in one flat block of memory,
+;; typically with a header containing the length of the vector, as in the ten-element vector below.
+;;
+;; +----+---+---+---+---+---+---+---+---+---+---+
+;; | 10 | a | b | c | d | e | f | g | h | i | j |
+;; +----+---+---+---+---+---+---+---+---+---+---+
+;;
+;; This makes vectors more suitable for applications needing fast access to any element of the aggregate
+;; but less suitable for applications needing data structures that grow and shrink as needed.
+;; Look up the basic vector operations in Section 6.9 and reimplement the stack object to use a vector
+;; instead of a list to hold the stack contents. Include the ref and set! messages of Exercise 2.9.3.
+;; Have the new make-stack accept a size argument n and make the vector length n, but do not otherwise
+;; change the external (abstract) interface.
+
+;; Answer:
+(define make-stack
+  (lambda (n)
+    (let ([v (make-vector n)] [top 0])
+      (lambda (msg . args)
+        (case msg
+          [(mt? empty?) (= 0 top)]
+          [(push!) (if (= top n)
+                     (assertion-violation 'stack "stack is full!"))
+                   (vector-set! v top (car args))
+                   (set! top (1+ top))]
+          [(top) (if (= top 0)
+                   (assertion-violation 'stack "stack is empty!"))
+                 (vector-ref v (1- top))]
+          [(pop!) (if (= top 0)
+                   (assertion-violation 'stack "stack is empty!"))
+                  (set! top (1- top))]
+          [(ref) (vector-ref v
+                             (- top (car args) 1))]
+          [(set!) (vector-set! v
+                               (- top (car args) 1)
+                               (cadr args))]
+          [else "oops"])))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.5
+;;
+;; Define a predicate, emptyq?, for determining if a queue is empty. Modify getq and delq! to raise
+;; an exception when an empty queue is found, using assertion-violation.
+
+;; Answer:
+(define make-queue
+  (lambda ()
+    (let ([end (cons 'ignored '())])
+      (cons end end))))
+
+(define emptyq?
+  (lambda (q)
+    (eqv? (car q) (cdr q))))
+
+(define putq!
+  (lambda (q v)
+    (let ([end (cons 'ignored '())])
+      (set-car! (cdr q) v)
+      (set-cdr! (cdr q) end)
+      (set-cdr! q end))))
+
+(define getq
+  (lambda (q)
+    (if (emptyq? q) (assertion-violation 'getq "empty queue!"))
+    (car (car q))))
+
+(define delq!
+  (lambda (q)
+    (if (emptyq? q) (assertion-violation 'delq "empty queue!"))
+    (set-car! q (cdr (car q)))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.6
+;;
+;; In the queue implementation, the last pair in the encapsulated list is a placeholder,
+;; i.e., it never holds anything useful. Recode the queue operators to avoid this wasted pair.
+;; Make sure that the series of queue operations given earlier works with the new implementation.
+;; Which implementation do you prefer?
+
+;; Answer:
+;;  I don't like new implementation for two reason:
+;;  1. Careful care have to be taken when dealing with empty queue;
+;;  2. More code have to be written.
+(define make-queue
+  (lambda ()
+    (cons 'ignored '())))
+
+(define emptyq?
+  (lambda (q)
+    (eqv? (car q) 'ignored)))
+
+(define putq!
+  (lambda (q v)
+    (let ([new-pair (cons v '())])
+      (if (emptyq? q)
+        (begin
+          (set-car! q new-pair)
+          (set-cdr! q new-pair))
+        (begin
+          (set-cdr! (cdr q) new-pair)
+          (set-cdr! q new-pair))))))
+
+(define getq
+  (lambda (q)
+    (if (emptyq? q) (assertion-violation 'getq "empty queue!"))
+    (car (car q))))
+
+(define delq!
+  (lambda (q)
+    (if (emptyq? q) (assertion-violation 'delq "empty queue!"))
+    (set-car! q (cdr (car q)))
+    (if (null? (car q)) (set-car! q 'ignored))))
+
+#|================================================================================================|#
+
+;; Exercise 2.9.7
+;;
+;; Using set-cdr!, it is possible to create cyclic lists. For example, the following expression 
+;; evaluates to a list whose car is the symbol a and whose cdr is the list itself.
+;;
+;; (let ([ls (cons 'a '())])
+;;   (set-cdr! ls ls)
+;;   ls)
+;;
+;; What happens when you enter the above expression during an interactive Scheme session?
+;; What will the implementation of length on page 42 do when given a cyclic list?
+;; What does the built-in length primitive do?
+;;
+;; Answer:
+;;  1. Scheme will give a warning about cyclic list, which can't be printed out.
+;;  2. The length function will never return.
+;;  3. An exception about circular list will be raised.
+
+#|================================================================================================|#
+
+;; Exercise 2.9.8
+;;
+;; Define the predicate list?, which returns #t if its argument is a proper list and #f otherwise
+;; (see Section 6.3). It should return #f for cyclic lists as well as for lists terminated by objects
+;; other than ().
+;;
+;; (list? '()) => #t
+;; (list? '(1 2 3)) => #t
+;; (list? '(a . b)) => #f
+;; (list? (let ([ls (cons 'a '())])
+;;          (set-cdr! ls ls) ls)) => #f
+;;
+;; First write a simplified version of list? that does not handle cyclic lists, then extend this to
+;; handle cyclic lists correctly. Revise your definition until you are satisfied that it is as clear
+;; and concise as possible. 
+;;
+;; [Hint: Use the following "hare and tortoise" algorithm to detect cycles. Define a recursive help
+;; procedure of two arguments, the hare and the tortoise. Start both the hare and the tortoise at the
+;; beginning of the list. Have the hare advance by two cdrs each time the tortoise advances by one cdr.
+;; If the hare catches the tortoise, there must be a cycle.]
+
+;; Answer:
+(define list?
+  (let ()
+    (define has-cycle?
+      (lambda (hare tortoise)
+        (cond
+          [(or (null? hare)
+               (null? (cdr hare))
+               (null? (cddr hare))) #f]
+          [(eqv? hare tortoise) #t]
+          [else (has-cycle? (cddr hare) (cdr tortoise))])))
+
+    (lambda (ls)
+      (cond 
+        [(null? ls) #t]
+        [(not (pair? ls)) #f]
+        [(has-cycle? ls ls) #f]
+        [else (list? (cdr ls))]))))
