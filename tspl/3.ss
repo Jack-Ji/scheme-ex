@@ -231,3 +231,63 @@
 ;;  In this incorrect version, application of odd? in even? wouldn't be a tail call when there's only
 ;;  one parameter for `or`. As a result, when given a very large number, scheme's runtime stack will
 ;;  grow out of control!
+
+#|================================================================================================|#
+
+;; Excercise 3.2.7
+;;
+;; The definition of factor is not the most efficient possible.
+;;
+;;  First, no factors of n besides n itself can possibly be found beyond (sqrt n).
+;;  Second, the division (/ n i) is performed twice when a factor is found.
+;;  Third, after 2, no even factors can possibly be found.
+;;
+;; Recode factor to correct all three problems. Which is the most important problem to solve?
+;; Are there any additional improvements you can make?
+
+;; Answer:
+;;  Addtional optimizations: 
+;;  1. result of `(sqrt n)` has been added as parameter to avoid redundant calculation.
+;;  2. use tail-recursion, add accumulating list as parameter.
+(define factor
+  (lambda (n)
+    (let f ([n n] [i 2] [t (sqrt n)] [ls '()])
+      (let ([r (/ n i)])
+        (cond
+          [(>= i t) (cons n ls)]
+          [(integer? r) (f r i (sqrt r) (cons i ls))]
+          [(> i 2) (f n (+ i 2) t ls)]
+          [else (f n (+ i 1) t ls)])))))
+;;
+;; > (define factor
+;;     (lambda (n)
+;;       (let f ([n n] [i 2])
+;;         (cond
+;;           [(>= i n) (list n)]
+;;           [(integer? (/ n i))
+;;            (cons i (f (/ n i) i))]
+;;           [else (f n (+ i 1))]))))
+;; > (time (factor 36288111))
+;; (time (factor 36288111))
+;;     46 collections
+;;     3.278358000s elapsed cpu time, including 0.001942000s collecting
+;;     3.281544000s elapsed real time, including 0.002116000s collecting
+;;     387102592 bytes allocated, including 388595136 bytes reclaimed
+;; (3 12096037)
+;;
+;; > (define factor
+;;     (lambda (n)
+;;       (let f ([n n] [i 2] [t (sqrt n)] [ls '()])
+;;         (let ([r (/ n i)])
+;;           (cond
+;;             [(>= i t) (cons n ls)]
+;;             [(integer? r) (f r i (sqrt r) (cons i ls))]
+;;             [(> i 2) (f n (+ i 2) t ls)]
+;;             [else (f n (+ i 1) t ls)])))))
+;; > (time (factor 36288111))
+;; (time (factor 36288111))
+;; no collections
+;; 0.000334000s elapsed cpu time
+;; 0.000332000s elapsed real time
+;; 83760 bytes allocated
+;; (12096037 3)
