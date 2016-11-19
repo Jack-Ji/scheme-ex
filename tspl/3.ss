@@ -127,3 +127,107 @@
   (syntax-rules ()
     [(_ t e1 e2 ...)
      (when (not t) e1 e2 ...)]))
+
+#|================================================================================================|#
+
+;; Excercise 3.2.2
+;;
+;; Rewrite factor using letrec to bind f in place of named let. Which version do you prefer?
+
+;; Answer:
+(define factorial
+  (lambda (n)
+    (letrec ([f
+              (lambda (a x)
+                (cond
+                  [(<= x 1) a]
+                  [else (f (* a x) (- x 1))]))])
+      (f 1 n))))
+
+#|================================================================================================|#
+
+;; Excercise 3.2.3
+;;
+;; Can the letrec expression below be rewritten using named let? If not, why not? If so, do it.
+;; (letrec ([even? (lambda (x)
+;;                   (or (= x 0)
+;;                       (odd? (- x 1))))]
+;;          [odd? (lambda (x)
+;;                  (and (not (= x 0)) (even? (- x 1))))])
+;;   (even? 20))
+;;
+;; Answer:
+;;  No way, cause varaibles can't appear free in the body of named let!
+
+#|================================================================================================|#
+
+;; Excercise 3.2.4
+;;
+;; Rewrite both definitions of fibonacci given in this section to count the number of recursive
+;; calls to fib, using a counter similar to the one used in the cons-count example of Section 2.9.
+;; Count the number of recursive calls made in each case for several input values. What do you notice?
+
+;; Answer:
+(define call-fib-counter 0)
+
+(define fibonacci
+  (lambda (n)
+    (letrec ([f (lambda (i)
+                  (set! call-fib-counter (1+ call-fib-counter))
+                  (cond
+                    [(= i 0) 0]
+                    [(= i 1) 1]
+                    [else (+ (f (- i 1)) (f (- i 2)))]))])
+      (f n))))
+
+(define fibonacci
+  (lambda (n)
+    (if (= n 0)
+      0
+      (letrec ([f (lambda (i a1 a2)
+                    (set! call-fib-counter (1+ call-fib-counter))
+                    (if (= i 1)
+                      a1
+                      (f (- i 1) (+ a1 a2) a1)))])
+        (f n 1 0)))))
+
+#|================================================================================================|#
+
+;; Excercise 3.2.5
+;;
+;; Augment the definition of let given in Section 3.1 to handle named let as well as unnamed let,
+;; using two rules.
+
+;; Answer:
+(define-syntax let 
+  (syntax-rules ()
+    [(_ name ((x e) ...) b1 b2 ...)
+     (letrec ([name (lambda (x ...) b1 b2 ...)]) (name e ...))]
+    [(_ ((x e) ...) b1 b2 ...)
+     ((lambda (x ...) b1 b2 ...) e ...)]))
+
+#|================================================================================================|#
+
+;; Excercise 3.2.6
+;;
+;; The following definition of or is simpler than the one given in Section 3.1.
+;; (define-syntax or ; incorrect!
+;;   (syntax-rules ()
+;;     [(_) #f]
+;;     [(_ e1 e2 ...)
+;;      (let ([t e1])
+;;        (if t t (or e2 ...)))]))
+;;     
+;; Say why it is not correct. [Hint: Think about what would happen if this version of or were used
+;; in the even? and odd? example given on page 66 for very large inputs.]
+;;
+;; Answer:
+;;      (letrec ([even? (lambda (x)
+;;                        (or (= x 0)
+;;                            (odd? (- x 1))))]
+;;               [odd? (lambda (x)
+;;                       (and (not (= x 0)) (even? (- x 1))))])
+;;        (list (even? 20) (odd? 20))) => (#t #f)
+;;  In this incorrect version, application of odd? in even? wouldn't be a tail call when there's only
+;;  one parameter for `or`. As a result, when given a very large number, scheme's runtime stack will
+;;  grow out of control!
