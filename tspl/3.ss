@@ -291,3 +291,18 @@
 ;; 0.000332000s elapsed real time
 ;; 83760 bytes allocated
 ;; (12096037 3)
+
+#|================================================================================================|#
+
+;; Excercise 3.3.1
+;;
+;; Use call/cc to write a program that loops indefinitely, printing a sequence of numbers beginning
+;; at zero. Do not use any recursive procedures, and do not use any assignments.
+
+;; Answer:
+;;  stolen from http://www.scheme.com/tspl3/answers.html
+(let ((k.n (call/cc (lambda (k) (cons k 0)))))
+  (let ((k (car k.n)) (n (cdr k.n)))
+    (write n)
+    (newline)
+    (k (cons k (+ n 1)))))
