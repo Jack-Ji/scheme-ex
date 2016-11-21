@@ -306,3 +306,52 @@
     (write n)
     (newline)
     (k (cons k (+ n 1)))))
+
+#|================================================================================================|#
+
+;; Excercise 3.3.2
+;;
+;; Rewrite product without call/cc, retaining the feature that no multiplications are performed if
+;; any of the list elements are zero.
+
+;; Answer:
+(define product
+  (lambda ns
+    (let do-product ([ls ns] [r 1])
+      (cond
+        [(null? ls) r]
+        [(= (car ls) 0) 0]
+        [else (do-product (cdr ls) (* (car ls) r))]))))
+
+#|================================================================================================|#
+
+;; Excercise 3.3.3
+;;
+;; What would happen if a process created by lwp as defined above were to terminate, i.e., simply
+;; return without calling pause? Define a quit procedure that allows a process to terminate without
+;; otherwise affecting the lwp system. Be sure to handle the case in which the only remaining
+;; process terminates.
+
+;; Answer:
+;;  Withous calling pause, the schedule system will break down, and the rest processes will halt forever.
+(define lwp-list '())
+(define lwp
+  (lambda (thunk)
+    (set! lwp-list (append lwp-list (list thunk)))))
+
+(define start
+  (lambda ()
+    (let ([p (car lwp-list)])
+      (set! lwp-list (cdr lwp-list))
+      (p))))
+
+(define pause
+  (lambda ()
+    (call/cc
+      (lambda (k)
+        (lwp (lambda () (k #f)))
+        (start)))))
+
+(define quit
+  (lambda ()
+    (when (not (null? lwp-list)) (start))))
