@@ -355,3 +355,88 @@
 (define quit
   (lambda ()
     (when (not (null? lwp-list)) (start))))
+
+#|================================================================================================|#
+
+;; Excercise 3.3.4
+;;
+;; Each time lwp is called, the list of processes is copied because lwp uses append to add its 
+;; argument to the end of the process list. Modify the original lwp code to use the queue data type
+;; developed in Section 2.9 to avoid this problem.
+
+;; Answer:
+(define make-queue
+  (lambda ()
+    (let ([end (cons 'ignored '())])
+      (cons end end))))
+
+(define emptyq?
+  (lambda (q)
+    (eqv? (car q) (cdr q))))
+
+(define putq!
+  (lambda (q v)
+    (let ([end (cons 'ignored '())])
+      (set-car! (cdr q) v)
+      (set-cdr! (cdr q) end)
+      (set-cdr! q end))))
+
+(define getq
+  (lambda (q)
+    (if (emptyq? q) (assertion-violation 'getq "empty queue!"))
+    (car (car q))))
+
+(define delq!
+  (lambda (q)
+    (if (emptyq? q) (assertion-violation 'delq! "empty queue!"))
+    (set-car! q (cdr (car q)))))
+
+(define lwp-list (make-queue))
+(define lwp
+  (lambda (thunk)
+    (putq! lwp-list thunk)))
+
+(define start
+  (lambda ()
+    (let ([p (getq lwp-list)])
+      (delq! lwp-list)
+      (p))))
+
+(define pause
+  (lambda ()
+    (call/cc
+      (lambda (k)
+        (lwp (lambda () (k #f)))
+        (start)))))
+
+(define quit
+  (lambda ()
+    (when (not (emptyq? lwp-list)) (start))))
+
+#|================================================================================================|#
+
+;; Excercise 3.3.5
+;;
+;; The light-weight process mechanism allows new processes to be created dynamically,
+;; although the example given in this section does not do so. Design an application that requires
+;; new processes to be created dynamically and implement it using the light-weight process mechanism.
+
+;; Answer:
+(define shell
+  (lambda ()
+    (pause)
+    (display "(Input your expression) # ")
+    (let ([p (eval (read))])
+      (cond
+        [(procedure? p) (display "added new process!\n") (lwp (lambda () (pause) (p)))]
+        [(number? p) (display "This is a number\n")]
+        [(string p) (display "This is a string\n")]
+        [else (display "Something else\n")]))
+    (shell)))
+
+(define start-shell
+  (lambda ()
+    (lwp shell)
+    (start)))
+
+(start-shell)
