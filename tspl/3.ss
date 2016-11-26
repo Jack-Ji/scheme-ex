@@ -440,3 +440,24 @@
     (start)))
 
 (start-shell)
+
+#|================================================================================================|#
+
+;; Excercise 3.4.1
+;;
+;; Rewrite the reciprocal example first given in Section 2.1 to accept both success and failure
+;; continuations, like integer-divide above.
+
+;; original
+(define reciprocal
+  (lambda (n)
+    (if (and (number? n) (not (= n 0))) 
+      (/ 1 n) 
+      (assertion-violation 'reciprocal "improper argument" n))))
+
+;; Answer:
+(define reciprocal
+  (lambda (n sucess failure)
+    (if (and (number? n) (not (= n 0)))
+      (sucess (/ 1 n))
+      (failure "improper argument!"))))
