@@ -461,3 +461,62 @@
     (if (and (number? n) (not (= n 0)))
       (sucess (/ 1 n))
       (failure "improper argument!"))))
+
+#|================================================================================================|#
+
+;; Excercise 3.4.2
+;;
+;; Rewrite the retry example from page 75 to use CPS.
+
+;; original
+(define retry #f)
+(define factorial
+  (lambda (x)
+    (if (= x 0)
+      (call/cc (lambda (k)
+                 (set! retry k) 1))
+      (* x (factorial (- x 1))))))
+
+;; Answer:
+;;  stolen from http://www.scheme.com/tspl3/answers.html
+(define retry #f) 
+(define factorial
+  (lambda (x)
+    (let f ([x x] [k (lambda (x) x)])
+      (if (= x 0)
+        (begin (set! retry k) (k 1))
+        (f (- x 1) (lambda (y) (k (* x y))))))))
+
+#|================================================================================================|#
+
+;; Excercise 3.4.3
+;;
+;; Rewrite the following expression in CPS to avoid using call/cc.
+;;
+;;  (define reciprocals
+;;    (lambda (ls)
+;;      (call/cc
+;;        (lambda (k)
+;;          (map (lambda (x)
+;;                 (if (= x 0)
+;;                   (k "zero found")
+;;                   (/ 1 x)))
+;;               ls)))))
+;;  
+;;  (reciprocals '(2 1/3 5 1/4)) => (1/2 3 1/5 4)
+;;  (reciprocals '(2 1/3 0 5 1/4)) => "zero found"
+;;
+;; [Hint: A single-list version of map is defined on page 46.]
+
+;; Answer:
+(define reciprocals
+  (lambda (ls)
+    (let f ([ls ls] [k (lambda (x) x)])
+      (cond
+        [(null? ls) (k ls)]
+        [(= (car ls) 0) (k "zero found")]
+        [else (f (cdr ls)
+                 (lambda (y)
+                   (if (list? y)
+                     (k (cons (/ 1 (car ls)) y))
+                     y)))]))))
