@@ -520,3 +520,58 @@
                    (if (list? y)
                      (k (cons (/ 1 (car ls)) y))
                      y)))]))))
+
+#|================================================================================================|#
+
+;; Excercise 3.5.1
+;;
+;; Redefine complain in the calc example as an equivalent syntactic extension.
+
+;; original
+(define complain 
+  (lambda (ek msg expr)
+    (ek (list msg expr))))
+
+;; Answer:
+(define-syntax complain
+  (syntax-rules ()
+    [(_ ek msg expr) (ek (list msg expr))]))
+
+#|================================================================================================|#
+
+;; Excercise 3.5.2
+;;
+;; In the calc example, the error continuation ek is passed along on each call to apply-op,
+;; complain, and do-calc. Move the definitions of apply-op, complain, and do-calc inward as far as
+;; necessary to eliminate the ek argument from the definitions and applications of these procedures.
+
+;; original
+(define calc #f)
+(let ()
+  (define do-calc
+    (lambda (ek expr)
+      (cond
+        [(number? expr) expr]
+        [(and (list? expr) (= length (expr) 3))
+         (let ([op (car expr)] [args (cdr expr)])
+           (case op
+             [(add) (apply-op ek + args)]
+             [(sub) (apply-op ek - args)]
+             [(mul) (apply-op ek * args)]
+             [(div) (apply-op ek / args)]
+             [else (complain ek "invalid operator" op)]))]
+        [else (complain ek  "invalid expression" expr)])))
+  (define apply-op
+    (lambda (ek op args)
+      (op (do-calc ek (car args)) (do-calc ek (cadr args)))))
+  (define complain
+    (lambda (ek msg expr)
+      (ek (list msg expr))))
+  (set! calc
+    (lambda (expr)
+      ; grab an error continuation ek
+      (call/cc
+        (lambda (ek)
+          (do-calc ek expr))))))
+
+;; Answer:
