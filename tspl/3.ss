@@ -552,7 +552,7 @@
     (lambda (ek expr)
       (cond
         [(number? expr) expr]
-        [(and (list? expr) (= length (expr) 3))
+        [(and (list? expr) (= (length expr) 3))
          (let ([op (car expr)] [args (cdr expr)])
            (case op
              [(add) (apply-op ek + args)]
@@ -575,3 +575,100 @@
           (do-calc ek expr))))))
 
 ;; Answer:
+(define calc #f)
+(let ()
+  (set! calc
+    (lambda (expr)
+      ; grab an error continuation ek
+      (call/cc
+        (lambda (ek)
+          (define do-calc
+            (lambda (expr)
+              (cond
+                [(number? expr) expr]
+                [(and (list? expr) (= (length expr) 3))
+                 (let ([op (car expr)] [args (cdr expr)])
+                   (case op
+                     [(add) (apply-op + args)]
+                     [(sub) (apply-op - args)]
+                     [(mul) (apply-op * args)]
+                     [(div) (apply-op / args)]
+                     [else (complain "invalid operator" op)]))]
+                [else (complain "invalid expression" expr)])))
+          (define apply-op
+            (lambda (op args)
+              (op (do-calc (car args)) (do-calc (cadr args)))))
+          (define complain
+            (lambda (msg expr)
+              (ek (list msg expr))))
+          (do-calc expr))))))
+
+#|================================================================================================|#
+
+;; Excercise 3.5.3
+;;
+;; Eliminate the call/cc from calc and rewrite complain to raise an exception using assertion-violation.
+
+;; Answer:
+(define calc #f)
+(let ()
+  (define do-calc
+    (lambda (expr)
+      (cond
+        [(number? expr) expr]
+        [(and (list? expr) (= (length expr) 3))
+         (let ([op (car expr)] [args (cdr expr)])
+           (case op
+             [(add) (apply-op + args)]
+             [(sub) (apply-op - args)]
+             [(mul) (apply-op * args)]
+             [(div) (apply-op / args)]
+             [else (complain "invalid operator" op)]))]
+        [else (complain "invalid expression" expr)])))
+  (define apply-op
+    (lambda (op args)
+      (op (do-calc (car args)) (do-calc (cadr args)))))
+  (define complain
+    (lambda (msg expr)
+      (assertion-violation 'complain "" (list msg expr))))
+  (set! calc
+    (lambda (expr)
+      (do-calc expr))))
+
+#|================================================================================================|#
+
+;; Excercise 3.5.4
+;;
+;; Extend calc to handle unary minus expressions, e.g.,
+;;
+;;  (calc '(minus (add 2 3))) => -5
+;;
+;; and other operators of your choice.
+
+;; Answer:
+(define calc #f)
+(let ()
+  (define do-calc
+    (lambda (expr)
+      (cond
+        [(number? expr) expr]
+        [(and (list? expr) (= (length expr) 3))
+         (let ([op (car expr)] [args (cdr expr)])
+           (case op
+             [(add) (apply-op + args)]
+             [(sub) (apply-op - args)]
+             [(mul) (apply-op * args)]
+             [(div) (apply-op / args)]
+             [else (complain "invalid operator" op)]))]
+        [(and (list? expr) (= (length expr) 2) (eq? (car expr) 'minus))
+         (- (do-calc (cadr expr)))]
+        [else (complain "invalid expression" expr)])))
+  (define apply-op
+    (lambda (op args)
+      (op (do-calc (car args)) (do-calc (cadr args)))))
+  (define complain
+    (lambda (msg expr)
+      (assertion-violation 'complain "" (list msg expr))))
+  (set! calc
+    (lambda (expr)
+      (do-calc expr))))
