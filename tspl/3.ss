@@ -80,19 +80,19 @@
 ;; Answer:
 (define-syntax let*
   (syntax-rules ()
-    ; no bindings
-    [(_ () b1 b2 ...)
-     (let () b1 b2 ...)]
+                ; no bindings
+                [(_ () b1 b2 ...)
+                 (let () b1 b2 ...)]
 
-    ; one binding
-    [(_ ((x e)) b1 b2 ...)
-     (let ((x e)) b1 b2 ...)]
+                ; one binding
+                [(_ ((x e)) b1 b2 ...)
+                 (let ((x e)) b1 b2 ...)]
 
-    ; two or more bindings
-    [(_ ((x1 e1) (x2 e2) (x3 e3) ...) b1 b2 ...)
-     (let ((x1 e1))
-       (let* ((x2 e2) (x3 e3) ...)
-         b1 b2 ...))]))
+                ; two or more bindings
+                [(_ ((x1 e1) (x2 e2) (x3 e3) ...) b1 b2 ...)
+                 (let ((x1 e1))
+                   (let* ((x2 e2) (x3 e3) ...)
+                     b1 b2 ...))]))
 
 #|================================================================================================|#
 
@@ -120,13 +120,13 @@
 ;; Answer:
 (define-syntax when
   (syntax-rules ()
-    [(_ t e1 e2 ...)
-     (if t (begin e1 e2 ...))]))
+                [(_ t e1 e2 ...)
+                 (if t (begin e1 e2 ...))]))
 
 (define-syntax unless
   (syntax-rules ()
-    [(_ t e1 e2 ...)
-     (when (not t) e1 e2 ...)]))
+                [(_ t e1 e2 ...)
+                 (when (not t) e1 e2 ...)]))
 
 #|================================================================================================|#
 
@@ -138,10 +138,10 @@
 (define factorial
   (lambda (n)
     (letrec ([f
-              (lambda (a x)
-                (cond
-                  [(<= x 1) a]
-                  [else (f (* a x) (- x 1))]))])
+               (lambda (a x)
+                 (cond
+                   [(<= x 1) a]
+                   [else (f (* a x) (- x 1))]))])
       (f 1 n))))
 
 #|================================================================================================|#
@@ -201,10 +201,10 @@
 ;; Answer:
 (define-syntax let 
   (syntax-rules ()
-    [(_ name ((x e) ...) b1 b2 ...)
-     (letrec ([name (lambda (x ...) b1 b2 ...)]) (name e ...))]
-    [(_ ((x e) ...) b1 b2 ...)
-     ((lambda (x ...) b1 b2 ...) e ...)]))
+                [(_ name ((x e) ...) b1 b2 ...)
+                 (letrec ([name (lambda (x ...) b1 b2 ...)]) (name e ...))]
+                [(_ ((x e) ...) b1 b2 ...)
+                 ((lambda (x ...) b1 b2 ...) e ...)]))
 
 #|================================================================================================|#
 
@@ -535,7 +535,7 @@
 ;; Answer:
 (define-syntax complain
   (syntax-rules ()
-    [(_ ek msg expr) (ek (list msg expr))]))
+                [(_ ek msg expr) (ek (list msg expr))]))
 
 #|================================================================================================|#
 
@@ -672,3 +672,63 @@
   (set! calc
     (lambda (expr)
       (do-calc expr))))
+
+#|================================================================================================|#
+
+;; Excercise 3.6.1
+;;
+;; Modify gpa to handle "x" grades, which do not count in the grade-point average.
+;; Be careful to handle gracefully the situation where each grade is x.
+;;
+;;  (import (grades))
+;;  (gpa a x b c) => 3.0
+
+;; Answer:
+(library (grades)
+  (export gpa->grade gpa)
+  (import (rnrs))
+
+  (define in-range?
+    (lambda (x n y)
+      (and (>= n x) (< n y))))
+
+  (define-syntax range-case
+    (syntax-rules (- else)
+      [(_ expr ((x - y) e1 e2 ...) ... [else ee1 ee2 ...])
+       (let ([tmp expr])
+         (cond
+           [(in-range? x tmp y) e1 e2 ...]
+           ...
+           [else ee1 ee2 ...]))]
+      [(_ expr ((x - y) e1 e2 ...) ...)
+       (let ([tmp expr])
+         (cond
+           [(in-range? x tmp y) e1 e2 ...]
+           ...))]))
+
+  (define letter->number
+    (lambda (x)
+      (case x
+        [(a) 4.0]
+        [(b) 3.0]
+        [(c) 2.0]
+        [(d) 1.0]
+        [(f) 0.0]
+        [else (assertion-violation 'grade "invalid letter grade" x)])))
+
+  (define gpa->grade
+    (lambda (x)
+      (range-case x
+        [(0.0 - 0.5) 'f]
+        [(0.5 - 1.5) 'd]
+        [(1.5 - 2.5) 'c]
+        [(2.5 - 3.5) 'b]
+        [else 'a])))
+
+  (define-syntax gpa
+    (syntax-rules (x)
+      [(_ g1 g2 ...)
+       (let ([ls (map letter->number (remq 'x '(g1 g2 ...)))])
+         (if (null? ls)
+           'x
+           (/ (apply + ls) (length ls))))])))
