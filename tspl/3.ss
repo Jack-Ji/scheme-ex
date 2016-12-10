@@ -726,9 +726,73 @@
         [else 'a])))
 
   (define-syntax gpa
-    (syntax-rules (x)
+    (syntax-rules ()
       [(_ g1 g2 ...)
        (let ([ls (map letter->number (remq 'x '(g1 g2 ...)))])
          (if (null? ls)
            'x
            (/ (apply + ls) (length ls))))])))
+
+#|================================================================================================|#
+
+;; Excercise 3.6.2
+;;
+;; Export from (grades) a new syntactic form, distribution, that takes a set of grades, like gpa,
+;; but returns a list of the form ((n g) ...), where n is the number of times g appears in the set,
+;; with one entry for each g. Have distribution call an unexported procedure to do the actual work.
+;;
+;;  (import (grades))
+;;  (distribution a b a c c c a f b a) => ((4 a) (2 b) (3 c) (0 d) (1 f))
+
+;; Answer:
+(define-syntax distribution
+  (syntax-rules ()
+    [(_ g1 g2 ...)
+     (let ([ga 0] [gb 0] [gc 0] [gd 0] [gf 0])
+       (map (lambda (g)
+              (case g
+                [(a) (set! ga (1+ ga))]
+                [(b) (set! gb (1+ gb))]
+                [(c) (set! gc (1+ gc))]
+                [(d) (set! gd (1+ gd))]
+                [(f) (set! gf (1+ gf))]
+                [else assertion-violation 'distribution "invalid grade" g]))
+            '(g1 g2 ...))
+       (list (list ga 'a) (list gb 'b) (list gc 'c) (list gd 'd) (list gf 'f)))]))
+
+#|================================================================================================|#
+
+;; Excercise 3.6.3
+;;
+;; Now read about output operations in Section 7.8 and define a new export, histogram, as a procedure
+;; that takes a textual output port and a distribution, such as might be produced by distribution,
+;; and prints a histogram in the style illustrated by the example below.
+;;  
+;;  (import (grades))
+;;  (histogram
+;;    (current-output-port)
+;;    (distribution a b a c c a c a f b a))
+;;  
+;;  prints:
+;;  a: *****
+;;  b: **
+;;  c: ***
+;;  d:
+;;  f: *
+
+;; Answer:
+(define-syntax histogram
+  (syntax-rules ()
+    [(_ port dist)
+     (map
+       (lambda (d)
+         (put-datum port (cadr d))
+         (put-char port #\:)
+         (put-char port #\space)
+         (let f ([n (car d)])
+           (if (not (= 0 n))
+             (begin
+               (put-char port #\*)
+               (f (- n 1)))))
+         (newline))
+       dist)]))
